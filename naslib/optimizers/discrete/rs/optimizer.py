@@ -1,0 +1,103 @@
+import torch
+
+from naslib.optimizers.core.metaclasses import MetaOptimizer
+from naslib.search_spaces.core.query_metrics import Metric
+
+
+class RandomSearch(MetaOptimizer):
+    """
+    Random search in DARTS is done by randomly sampling `k` architectures
+    and training them for `n` epochs, then selecting the best architecture.
+    DARTS paper: `k=24` and `n=100` for cifar-10.
+    """
+
+    # training the models is not implemented
+    using_step_function = False
+
+    def __init__(self, config, weight_optimizer=torch.optim.SGD, loss_criteria=torch.nn.CrossEntropyLoss(), grad_clip=None):
+        """
+        Initialize a random search optimizer.
+
+        Args:
+            config
+            weight_optimizer (torch.optim.Optimizer): The optimizer to 
+                train the (convolutional) weights.
+            loss_criteria (TODO): The loss
+            grad_clip (float): Where to clip the gradients (default None).
+        """
+        super(RandomSearch, self).__init__()
+        self.weight_optimizer = weight_optimizer
+        self.loss = loss_criteria
+        self.grad_clip = grad_clip
+
+        self.performance_metric = Metric.VAL_ACCURACY
+        self.dataset = config.dataset
+        self.fidelity = config.search.fidelity
+
+        self.history = torch.nn.ModuleList()
+
+
+    def adapt_search_space(self, search_space, scope=None, dataset_api=None):
+        assert search_space.QUERYABLE, "Random search is currently only implemented for benchmarks."
+        self.search_space = search_space.clone()
+        self.scope = scope if scope else search_space.OPTIMIZER_SCOPE
+        self.dataset_api = dataset_api
+
+    def new_epoch(self, e):
+        """
+        Sample a new architecture to train.
+        """
+
+        model = torch.nn.Module()   # hacky way to get arch and accuracy checkpointable
+        model.arch = self.search_space.clone()
+        model.arch.sample_random_architecture(dataset_api=self.dataset_api)     
+        model.epoch = model.arch.get_max_epochs()
+        model.accuracy = model.arch.query(self.performance_metric,
+                                          self.dataset, 
+                                          epoch=model.epoch,
+                                          dataset_api=self.dataset_api)
+
+        self._update_history(model)
+
+        # required if we want to train the models and not only query.
+        # architecture_i.parse()
+        # architecture_i.train()
+        # architecture_i = architecture_i.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+        # self.sampled_archs.append(architecture_i)
+        # self.weight_optimizers.append(self.weight_optimizer(architecture_i.parameters(), 0.01))
+
+
+    def _update_history(self, child):
+        self.history.append(child)
+
+    def get_final_architecture(self):
+        
+        # Returns the sampled architecture with the lowest validation error.
+        best_arch = max(self.history, key=lambda x: x.accuracy)
+        return best_arch.arch, best_arch.epoch
+
+    def get_latest_architecture(self):
+
+        # Returns the architecture from the most recent epoch
+        latest_arch = self.history[-1]
+        return latest_arch.arch, latest_arch.epoch
+
+    def train_statistics(self):
+        best_arch, best_arch_epoch = self.get_final_architecture()
+        latest_arch, latest_arch_epoch = self.get_latest_architecture()
+        return (
+            best_arch.query(Metric.TRAIN_ACCURACY, self.dataset, dataset_api=self.dataset_api, epoch=best_arch_epoch-1), 
+            best_arch.query(Metric.VAL_ACCURACY, self.dataset, dataset_api=self.dataset_api, epoch=best_arch_epoch), 
+            best_arch.query(Metric.TEST_ACCURACY, self.dataset, dataset_api=self.dataset_api, epoch=best_arch_epoch), 
+            latest_arch.query(Metric.TRAIN_TIME, self.dataset, dataset_api=self.dataset_api, epoch=latest_arch_epoch), 
+        )
+    
+    def test_statistics(self):
+        best_arch, epoch = self.get_final_architecture()
+        return best_arch.query(Metric.RAW, self.dataset, dataset_api=self.dataset_api, epoch=epoch)
+
+    def get_op_optimizer(self):
+        return self.weight_optimizer
+
+    def get_checkpointables(self):
+        return {'model': self.history}
