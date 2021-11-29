@@ -69,7 +69,7 @@ class SurrogateModel(ABC):
             with open(os.path.join(log_dir, 'data_config.json'), 'w') as fp:
                 json.dump(data_config, fp)
             
-    def load_dataset(self, dataset_type='train', use_full_lc=True, nlp_max_nodes=24):
+    def load_dataset(self, dataset_type='train', use_full_lc=True, nlp_max_nodes=12):
         """
         Returns specified dataset type for a search space
         """

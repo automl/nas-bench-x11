@@ -1,6 +1,5 @@
 import json
 import os
-import time
 
 import click
 import numpy as np
@@ -23,7 +22,7 @@ default_data_path = os.path.join(root, 'data')
 @click.option('--log_dir', type=click.STRING, help='Experiment directory', default='experiments/surrogate_models')
 @click.option('--seed', type=click.INT, help='seed for numpy, python, pytorch', default=6)
 @click.option('--ensemble', help='wether to use an ensemble', default=True)
-@click.option('--search_space', help='nb-311, nb-211, nb-111, nlp-11', default='nb-111')
+@click.option('--search_space', help='darts, nb101, nlp, nb201', default='nb101')
 @click.option('--data_splits_root', type=click.STRING, help='path to directory containing data splits', default=None)
 def train_surrogate_model(model, nasbench_data, model_config_path, data_config_path,
                           log_dir, seed, ensemble, search_space, data_splits_root):
@@ -31,7 +30,7 @@ def train_surrogate_model(model, nasbench_data, model_config_path, data_config_p
     data_config = json.load(open(data_config_path, 'r'))
 
     # Create log directory
-    log_dir = os.path.join(log_dir, model, '{}-{}'.format(time.strftime("%Y%m%d-%H%M%S"), seed))
+    log_dir = os.path.join(log_dir, model, '{}-{}'.format(search_space, 'v1'))
     os.makedirs(log_dir)
 
     # Select model config to use
