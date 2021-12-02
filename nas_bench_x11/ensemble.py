@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from abc import abstractmethod
-import utils
+from nas_bench_x11.utils import utils
 
 
 class AbstractEnsemble():

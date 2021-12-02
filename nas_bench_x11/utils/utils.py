@@ -16,14 +16,14 @@ from sklearn.metrics import mean_squared_error, r2_score
 from tqdm import tqdm
 from pathlib import Path
 
-from models.lgboost import LGBModel, LGBModelTime
-from models.xgboost import XGBModel, XGBModelTime
-from models.svd_lgb import SVDLGBModel
-from models.svd_xgb import SVDXGBModel
-from models.svd_nn import SVDNNModel
-from models.vae_nn import VAENNModel
-from models.vae_lgb import VAELGBModel
-from models.vae_xgb import VAEXGBModel
+from nas_bench_x11.models.lgboost import LGBModel, LGBModelTime
+from nas_bench_x11.models.xgboost import XGBModel, XGBModelTime
+from nas_bench_x11.models.svd_lgb import SVDLGBModel
+from nas_bench_x11.models.svd_xgb import SVDXGBModel
+from nas_bench_x11.models.svd_nn import SVDNNModel
+from nas_bench_x11.models.vae_nn import VAENNModel
+from nas_bench_x11.models.vae_lgb import VAELGBModel
+from nas_bench_x11.models.vae_xgb import VAEXGBModel
 
 sns.set_style('whitegrid')
 
@@ -48,7 +48,7 @@ def get_project_root() -> Path:
     """
     Returns the root path of the project.
     """
-    return Path(__file__).parent
+    return Path(__file__).parent.parent
 
 
 def evaluate_learning_curve_metrics(y_true, y_pred, prediction_is_first_arg, reduction='mean'):
@@ -128,8 +128,9 @@ def get_model_configspace(model):
     """
     # Find matching config for the model name
     model_config_regex = re.compile(".*{}_configspace.json".format(model))
+    root = get_project_root()
     matched_model_config_paths = list(
-        filter(model_config_regex.match, glob.glob('configs/model_configs/*/*')))
+        filter(model_config_regex.match, glob.glob(str(root) + '/configs/model_configs/*')))
 
     print(matched_model_config_paths)
     # Make sure we only matched exactly one config
@@ -433,18 +434,20 @@ class ResultLoader:
         test_paths = paths[val_upper_idx:-1]
         return train_paths, val_paths, test_paths
 
-    def all_result_paths(self):
+    def all_result_paths(self, verbose=False):
         """
         Return the paths of all results
         :return: result paths
         """
         all_results_paths = glob.glob(os.path.join(self.root, self.filepath_regex))
-        print("==> Found %i results paths. Filtering duplicates..." % len(all_results_paths))
+        if verbose:
+            print("==> Found %i results paths. Filtering duplicates..." % len(all_results_paths))
         all_results_paths.sort()
         all_results_paths_filtered = self.filter_duplicate_dirs(all_results_paths)
-        print("==> Finished filtering. Found %i unique architectures, %i duplicates" % (len(all_results_paths_filtered),
-                                                                                        len(all_results_paths) - len(
-                                                                                            all_results_paths_filtered)))
+        if verbose:
+            print("==> Finished filtering. Found %i unique architectures, %i duplicates" % (len(all_results_paths_filtered),
+                                                                                            len(all_results_paths) - len(
+                                                                                                all_results_paths_filtered)))
         train_paths, val_paths, test_paths = self.get_splits(all_results_paths_filtered)
         return train_paths, val_paths, test_paths
 

@@ -10,10 +10,10 @@ import pathvalidate
 import torch
 import torch.backends.cudnn as cudnn
 
-import utils
-from encoding import encode
-from nb101_data import get_nb101_data
-from nbnlp_data import get_nbnlp_data
+from nas_bench_x11.utils import utils
+from nas_bench_x11.encodings.encoding import encode
+from nas_bench_x11.utils.data_loaders.nb101_data import get_nb101_data
+from nas_bench_x11.utils.data_loaders.nbnlp_data import get_nbnlp_data
 
 
 class SurrogateModel(ABC):
@@ -25,6 +25,7 @@ class SurrogateModel(ABC):
         self.seed = seed
         self.search_space = search_space
         self.nb101_api = nb101_api
+        self.verbose = False
 
         # Seeding
         np.random.seed(seed)
@@ -35,7 +36,7 @@ class SurrogateModel(ABC):
 
         # Create config loader
         root = utils.get_project_root()
-        self.config_loader = utils.ConfigLoader(os.path.join(root, 'nasbench301/configspace.json'))
+        self.config_loader = utils.ConfigLoader(os.path.join(root, 'configs/data_configs/nb301_configspace.json'))
 
         # Load the data
         if log_dir is not None:
@@ -51,15 +52,18 @@ class SurrogateModel(ABC):
             # Dump the config of the run to log_dir
             self.data_config['seed'] = seed
 
-            logging.info('MODEL CONFIG: {}'.format(model_config))
-            logging.info('DATA CONFIG: {}'.format(data_config))
+            logging.info('Loading dataset')
+            if self.verbose:
+                logging.info('MODEL CONFIG: {}'.format(model_config))
+                logging.info('DATA CONFIG: {}'.format(data_config))
 
             if self.search_space == 'darts':
                 self._load_data()
-                logging.info(
-                    'DATA: No. train data {}, No. val data {}, No. test data {}'.format(len(self.train_paths),
-                                                                                        len(self.val_paths),
-                                                                                        len(self.test_paths)))
+                if self.verbose:
+                    logging.info(
+                        'DATA: No. train data {}, No. val data {}, No. test data {}'.format(len(self.train_paths),
+                                                                                            len(self.val_paths),
+                                                                                            len(self.test_paths)))
             else:
                 self.train_paths, self.val_paths, self.test_paths = [], [], []
 

@@ -2,9 +2,9 @@ import os
 import json
 from pathlib import Path
 
-import representations
-from ensemble import Ensemble
-from encodings_nb201 import encode_nb201
+from nas_bench_x11.utils import representations
+from nas_bench_x11.ensemble import Ensemble
+from nas_bench_x11.encodings.encodings_nb201 import encode_nb201
 
 
 fixed_hyperparameters = {

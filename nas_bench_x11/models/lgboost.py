@@ -6,8 +6,8 @@ import lightgbm as lgb
 import matplotlib.pyplot as plt
 import numpy as np
 
-import utils
-from surrogate_model import SurrogateModel
+from nas_bench_x11.utils import utils
+from nas_bench_x11.surrogate_model import SurrogateModel
 
 
 class LGBModel(SurrogateModel):

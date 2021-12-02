@@ -4,9 +4,11 @@ Encodings of nas-bench-301 are forked from automl/nasbench301.
 """
 import os
 import numpy as np
-from encodings_nlp import encode_nlp
-from encodings_nb101 import encode_nb101
-from encodings_nb201 import encode_nb201
+
+from nas_bench_x11.encodings.encodings_nb101 import encode_nb101
+from nas_bench_x11.encodings.encodings_nb201 import encode_nb201
+from nas_bench_x11.encodings.encodings_nlp import encode_nlp
+
 
 def encode(arch_strings, data, search_space, nlp_max_nodes, nb101_api):
 
