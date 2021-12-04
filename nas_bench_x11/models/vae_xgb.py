@@ -7,12 +7,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 import xgboost as xgb
-
 from sklearn.multioutput import RegressorChain
 from sklearn.preprocessing import StandardScaler
 
-import utils
-from surrogate_model import SurrogateModel
+from nas_bench_x11.utils import utils
+from nas_bench_x11.surrogate_model import SurrogateModel
 
 
 class VAE(nn.Module):

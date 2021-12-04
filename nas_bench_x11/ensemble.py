@@ -2,8 +2,8 @@ import json
 import logging
 import os
 import numpy as np
-
 from abc import abstractmethod
+
 from nas_bench_x11.utils import utils
 
 

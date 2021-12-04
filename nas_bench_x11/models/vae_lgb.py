@@ -9,12 +9,11 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 import lightgbm as lgb
-
 from sklearn.multioutput import RegressorChain
 from sklearn.preprocessing import StandardScaler
 
-import utils
-from surrogate_model import SurrogateModel
+from nas_bench_x11.utils import utils
+from nas_bench_x11.surrogate_model import SurrogateModel
 
 
 class VAE(nn.Module):

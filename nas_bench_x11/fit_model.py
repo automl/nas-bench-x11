@@ -48,6 +48,7 @@ def train_surrogate_model(model, model_config_path,
     if data_path is None:
         data_path = os.path.join(root, '../data')
     
+    nb101_api = None
     if search_space == 'nb101':
         # load nasbench101 api here, so that it doesn't reload for every surrogate in the ensemble
         from nasbench import api
@@ -56,9 +57,6 @@ def train_surrogate_model(model, model_config_path,
     elif search_space == 'darts':
         # todo: make this more general
         data_path = os.path.join(data_path, 'nb_301_v13_lc_iclr_final')
-        nb101_api = None
-    else:
-        nb101_api = None
 
     # Instantiate surrogate model
     if ensemble:

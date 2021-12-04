@@ -30,7 +30,7 @@ class SVDLGBModel(SurrogateModel):
         return param_config
 
     def train(self):
-
+        # matrices (e.g. X) are capitalized, vectors (e.g. y) are uncapitalized
         X_train, y_train, _ = self.load_dataset(dataset_type='train', use_full_lc=True)
         X_val, y_val, _ = self.load_dataset(dataset_type='val', use_full_lc=True)
 

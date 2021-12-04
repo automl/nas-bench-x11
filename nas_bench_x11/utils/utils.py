@@ -4,10 +4,8 @@ import json
 import os
 import re
 from math import isclose
-
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from ConfigSpace.read_and_write import json as config_space_json_r_w
@@ -576,70 +574,6 @@ def find_key_value(key, dictionary):
             for d in v:
                 for result in find_key_value(key, d):
                     yield result
-
-
-def scatter_plot(xs, ys, xlabel, ylabel, title):
-    """
-    Creates scatter plot of the predicted and groundtruth performance
-    :param xs:
-    :param ys:
-    :param xlabel:
-    :param ylabel:
-    :param title:
-    :return:
-    """
-    fig = plt.figure(figsize=(4, 3))
-    plt.tight_layout()
-    plt.grid(True, which='both', ls='-', alpha=0.5)
-    plt.scatter(xs, ys, alpha=0.8, s=4)
-    xs_min = xs.min()
-    xs_max = xs.max()
-    plt.plot(np.linspace(xs_min, xs_max), np.linspace(xs_min, xs_max), 'r', alpha=0.5)
-    plt.xlabel(xlabel=xlabel)
-    plt.ylabel(ylabel=ylabel)
-    plt.title(title)
-    return fig
-
-
-def plot_predictions(mu_train, mu_test, var_train, var_test, train_y, test_y,
-                     log_dir, name='random forest', x1=0, x2=100, y1=0, y2=100):
-    f, ax = plt.subplots(1, 2, figsize=(15, 6))
-
-    if var_train is not None:
-        ll = norm.logpdf(np.array(train_y, dtype=np.float), loc=mu_train, scale=np.sqrt(var_train))
-        c_map = 'viridis'
-    else:
-        ll = 'b'
-        c_map = None
-
-    im1 = ax[0].scatter(mu_train, train_y, c=ll, cmap=c_map)
-    ax[0].set_xlabel('predicted', fontsize=15)
-    ax[0].set_ylabel('true', fontsize=15)
-    ax[0].set_title('{} (train)'.format(name), fontsize=15)
-    ax[0].plot([0, 100], [0, 100], 'k--')
-    if var_train is not None:
-        f.colorbar(im1, ax=ax[0])
-
-    if var_test is not None:
-        ll = norm.logpdf(np.array(test_y, dtype=np.float), loc=mu_test, scale=np.sqrt(var_test))
-        c_map = 'viridis'
-    else:
-        ll = 'b'
-        c_map = None
-
-    ax[1].set_xlim([x1, x2])
-    ax[1].set_ylim([y1, y2])
-
-    im1 = ax[1].scatter(mu_test, test_y, c=ll, cmap=c_map)
-    ax[1].set_xlabel('predicted', fontsize=15)
-    ax[1].set_ylabel('true', fontsize=15)
-    ax[1].set_title('{} (test)'.format(name), fontsize=15)
-    ax[1].plot([0, 100], [0, 100], 'k--')
-    if var_test is not None:
-        f.colorbar(im1, ax=ax[1])
-    plt.tight_layout()
-    plt.savefig(os.path.join(log_dir, '_'.join(name.split()) + '.jpg'))
-    return plt.gcf()
 
 
 class AvgrageMeter(object):

@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
-
 import numpy as np
 import pathvalidate
 import torch
@@ -76,6 +75,8 @@ class SurrogateModel(ABC):
     def load_dataset(self, dataset_type='train', use_full_lc=True, nlp_max_nodes=12):
         """
         Returns specified dataset type for a search space
+        TODO: Since darts is different from the other search spaces, we should put 
+        load_results_from_result_paths into its own file, data_loaders/darts_data.py, just like the other search spaces
         """
         if self.search_space == 'darts':
             if dataset_type == 'train':
