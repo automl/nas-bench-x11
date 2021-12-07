@@ -1,9 +1,3 @@
-"""
-This file contains code based on
-https://github.com/automl/nasbench301/
-Authors: Julien Siems, Lucas Zimmer, Arber Zela, Jovita Lukasik, Margret Keuper, Frank Hutter
-"""
-
 import logging
 import os
 import joblib
