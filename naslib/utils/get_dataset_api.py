@@ -67,7 +67,7 @@ def get_nasbench211_api(dataset=None,
 
 def get_darts_api(dataset=None, learning_curves=True,
                   nb311_model_path='checkpoints/surrogate-darts-v0.5',
-                  nb301_runtime_path=os.path.expanduser('nasbench301/nb_models/lgb_runtime_v1.0')):
+                  nb301_runtime_path=os.path.expanduser('nb_models/lgb_runtime_v1.0')):
     """
     Load the nb301/nb311 training data (which contains full learning curves) and the nb301 models
     """
