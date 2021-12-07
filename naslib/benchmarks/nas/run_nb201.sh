@@ -1,13 +1,13 @@
 export PYTHONPATH=$HOME/nas-bench-x11:$PYTHONPATH
 export OMP_NUM_THREADS=2
-#optimizers=(rs)
+optimizers=(rs)
 #optimizers=(re)
 #optimizers=(rea_lce)
 #optimizers=(rea_svr)
 #optimizers=(ls)
 #optimizers=(ls_lce)
 #optimizers=(ls_svr)
-optimizers=(bananas)
+#optimizers=(bananas)
 #optimizers=(bananas_svr)
 #optimizers=(bananas_lce)
 #optimizers=(hb)

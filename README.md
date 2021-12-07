@@ -37,8 +37,8 @@ bash naslib/benchmarks/nas/run_nb311.sh
 bash naslib/benchmarks/nas/run_nb201.sh 
 bash naslib/benchmarks/nas/run_nb201_cifar100.sh 
 bash naslib/benchmarks/nas/run_nb201_imagenet16-200.sh
-bash naslib/benchmarks/nas/run_nbnlp.sh 
 bash naslib/benchmarks/nas/run_nb111.sh 
+bash naslib/benchmarks/nas/run_nbnlp.sh 
 ```
 Results will be saved in ``results/``.
 
