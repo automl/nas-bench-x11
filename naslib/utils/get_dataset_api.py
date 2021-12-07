@@ -2,7 +2,7 @@ import os
 import pickle
 
 from naslib.utils.utils import get_project_root
-from nasbench301.api import load_ensemble
+from nas_bench_x11.api import load_ensemble
 
 """
 This file loads any dataset files or api's needed by the Trainer or PredictorEvaluator object.
@@ -11,7 +11,7 @@ throughout the discrete NAS algos, which would lead to memory errors.
 """
 
 def get_nasbench101_api(dataset=None, full_data=True,
-                        nb111_model_path='experiments/surrogate_models/svd_lgb/nb101-v1'):
+                        nb111_model_path='checkpoints/surrogate-nb101-v0.5'):
         
     # load nas-bench-111 surrogate
     nb311_root = get_project_root()
@@ -53,7 +53,7 @@ def get_nasbench201_api(dataset=None):
     return {'raw_data':nb201_data, 'full_lc_data':full_lc_data}
 
 def get_nasbench211_api(dataset=None, 
-                        nb211_model_path=os.path.join('experiments/surrogate_models/svd_lgb/nb201-v1')):
+                        nb211_model_path=os.path.join('checkpoints/surrogate-nb201-v0.5')):
     # get the datasets from nasbench201
     full_api = get_nasbench201_api(dataset=dataset)
 
@@ -66,7 +66,7 @@ def get_nasbench211_api(dataset=None,
     return full_api
 
 def get_darts_api(dataset=None, learning_curves=True,
-                  nb311_model_path='experiments/surrogate_models/svd_lgb/darts-v1',
+                  nb311_model_path='checkpoints/surrogate-darts-v0.5',
                   nb301_runtime_path=os.path.expanduser('nasbench301/nb_models/lgb_runtime_v1.0')):
     """
     Load the nb301/nb311 training data (which contains full learning curves) and the nb301 models
@@ -84,7 +84,7 @@ def get_darts_api(dataset=None, learning_curves=True,
     return {'nb311_model':nb311_model}
 
 
-def get_nlp_api(dataset=None, nlp_model_path='experiments/surrogate_models/svd_lgb/nlp-v1'):
+def get_nlp_api(dataset=None, nlp_model_path='checkpoints/surrogate-nlp-v0.5'):
     """
     Load the nas-bench-nlp surrogate model, which contains full training data
     """

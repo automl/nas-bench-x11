@@ -1,6 +1,6 @@
 export PYTHONPATH=$HOME/nas-bench-x11:$PYTHONPATH
 export OMP_NUM_THREADS=2
-#optimizers=(rs)
+optimizers=(rs)
 #optimizers=(re)
 #optimizers=(rea_lce)
 #optimizers=(rea_svr)
@@ -11,7 +11,7 @@ export OMP_NUM_THREADS=2
 #optimizers=(bananas_svr)
 #optimizers=(bananas_lce)
 #optimizers=(hb)
-optimizers=(bohb)
+#optimizers=(bohb)
 
 start_seed=$1
 if [ -z "$start_seed" ]

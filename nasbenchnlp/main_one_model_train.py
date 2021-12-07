@@ -11,7 +11,7 @@ import numpy as np
 import math
 import time
 
-import data
+from nasbenchnlp import data
 from nasbenchnlp.utils import batchify
 from argparse import Namespace
 from nasbenchnlp.model import AWDRNNModel

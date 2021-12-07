@@ -15,13 +15,13 @@ We present a method to create surrogate neural architecture search (NAS) benchma
 Clone this repository and install its requirements.
 ```bash
 git clone https://github.com/automl/nas-bench-x11
-cd naszilla
+cd nas-bench-x11
 cat requirements.txt | xargs -n 1 -L 1 pip install
 pip install -e .
 ```
 
 ## Download pre-trained models
-TODO: put nb311 v1.0 up on fighshare
+Download [surrogate models](https://figshare.com/articles/dataset/pretrained_models_zip/17131955) and save them in ``checkpoints/``. The current model used in paper is version v0.5. We will continue to improve the surrogate model (i.e. sliding window approach).
 
 ## Using the API
 TODO: simple example to show how to query the api, similar to this: https://github.com/google-research/nasbench#using-the-dataset
@@ -29,6 +29,7 @@ TODO: simple example to show how to query the api, similar to this: https://gith
 Now you are ready to benchmark multi-fidelity NAS algorithms on a CPU.
 
 ## Run NAS experiments from our paper
+Download the nas-bench-301 runtime model [lgb_runtime_v1.0](https://figshare.com/articles/software/nasbench301_models_v1_0_zip/13061510) in ``nasbench301/nb_models``.
 ```
 # Supported optimizers: (rs re ls bananas)-{svr, lce}, hb, bohb 
 
@@ -36,39 +37,10 @@ bash naslib/benchmarks/nas/run_nb311.sh
 bash naslib/benchmarks/nas/run_nb201.sh 
 bash naslib/benchmarks/nas/run_nb201_cifar100.sh 
 bash naslib/benchmarks/nas/run_nb201_imagenet16-200.sh
-bash naslib/benchmarks/nas/run_nb211.sh 
 bash naslib/benchmarks/nas/run_nbnlp.sh 
+bash naslib/benchmarks/nas/run_nb111.sh 
 ```
-results will be saved in ``results/``.
-
-## Train your own surrogate benchmark
-TODO: maybe we put this section in its own md file? And explain the steps to take if someone has a new search space.
-The previous section already lets you run NAS algorithms using the pre-trained surrogate benchmarks. Now we give instructions in case you want to train your own surrogate benchmark.
-
-First, download the corresponding dataset.
-
-Next, download the nas benchmark datasets (either with the terminal commands below,
-or from their respective websites
-([NAS-Bench-101](https://github.com/google-research/nasbench),
-[NAS-Bench-301](https://github.com/automl/nasbench301), and
-[NAS-Bench-NLP](https://github.com/fmsnew/nas-bench-nlp-release)).
-```bash
-cd data
-# these files are 2GB, 300MB, and 21MB, respectively
-wget https://storage.googleapis.com/nasbench/nasbench_full.tfrecord
-wget https://figshare.com/ndownloader/files/25594868 -O nasbench301_models_v0.9.zip
-wget https://drive.google.com/file/d/1DtrmuDODeV2w5kGcmcHcGj5JXf2qWg01
-unzip nasbench301_full_data.zip
-```
-
-## Model Training
-```
-# Supported search spaces: nb101, darts, nlp, nb201
-
-python fit_model.py --search_space darts --model svd_lgb
-```
-models will be saved in ``experiments/``.
-
+Results will be saved in ``results/``.
 
 
 

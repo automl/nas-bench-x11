@@ -30,7 +30,7 @@ def train_surrogate_model(model, model_config_path,
 
     # Create log directory
     if log_dir is None:
-        log_dir = 'surrogate-' + time.strftime("%Y%m%d-%H%M%S") + '-' + search_space
+        log_dir = os.path.join('checkpoints', 'surrogate-' + time.strftime("%Y%m%d-%H%M%S") + '-' + search_space)
     os.makedirs(log_dir)
 
     # Select model config to use

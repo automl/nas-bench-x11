@@ -75,7 +75,6 @@ class SurrogateModel(ABC):
     def load_dataset(self, dataset_type='train', use_full_lc=True, nlp_max_nodes=12):
         """
         Returns specified dataset type for a search space
-        TODO: Since darts is different from the other search spaces, we should put 
         load_results_from_result_paths into its own file, data_loaders/darts_data.py, just like the other search spaces
         """
         if self.search_space == 'darts':
@@ -95,7 +94,7 @@ class SurrogateModel(ABC):
             elif self.search_space == 'nb101':
                 data = get_nb101_data(data_root=self.data_root)
 
-            np.random.seed(0)
+            np.random.seed(self.seed)
             arch_strings = list(data.keys())
             n = len(arch_strings)
             random_order = [i for i in range(n)]
