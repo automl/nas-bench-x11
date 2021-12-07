@@ -1,7 +1,3 @@
-"""
-This file contains methods to encode for nas-bench-nlp and nas-bench-201.
-Encodings of nas-bench-301 are forked from automl/nasbench301.
-"""
 import os
 import numpy as np
 

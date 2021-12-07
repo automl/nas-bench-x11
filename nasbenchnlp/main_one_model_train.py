@@ -6,14 +6,13 @@
 import sys
 import os
 import torch.utils.data
-
 import numpy as np
 import math
 import time
+from argparse import Namespace
 
 from nasbenchnlp import data
 from nasbenchnlp.utils import batchify
-from argparse import Namespace
 from nasbenchnlp.model import AWDRNNModel
 from nasbenchnlp.train import train, evaluate
 from nasbenchnlp.splitcross import SplitCrossEntropyLoss
