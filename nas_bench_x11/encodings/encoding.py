@@ -1,4 +1,3 @@
-import os
 import numpy as np
 
 from nas_bench_x11.encodings.encodings_nb101 import encode_nb101
