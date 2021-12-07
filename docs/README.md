@@ -1,25 +1,18 @@
 ## Train your own surrogate benchmark
-The previous section already lets you run NAS algorithms using the pre-trained surrogate benchmarks. Now we give instructions in case you want to train your own surrogate benchmark.
+The [main readme](https://github.com/automl/nas-bench-x11) already shows how to use the pretrained surrogate benchmarks and run NAS algorithms. This readme is for training your own surrogate benchmark.
 
-Download the nas benchmark datasets (either with the terminal commands below,
-or from their respective websites
-([NAS-Bench-101](https://github.com/google-research/nasbench),
-[NAS-Bench-301](https://github.com/automl/nasbench301), and
-[NAS-Bench-NLP](https://github.com/fmsnew/nas-bench-nlp-release)).
-```bash
-cd $HOME/nas-bench-x11
-# these files are 2GB, 300MB, and 21MB, respectively
-wget https://storage.googleapis.com/nasbench/nasbench_full.tfrecord
-wget https://figshare.com/ndownloader/files/25594868 -O nasbench301_models_v0.9.zip
-wget https://drive.google.com/file/d/1DtrmuDODeV2w5kGcmcHcGj5JXf2qWg01
-unzip nasbench301_full_data.zip
-```
+Download the NAS benchmark datasets corresponding to the surrogates you wish to train:
+[NAS-Bench-101](https://storage.googleapis.com/nasbench/nasbench_full.tfrecord),
+[NAS-Bench-301](https://figshare.com/ndownloader/files/25594868),
+[NAS-Bench-NLP](https://drive.google.com/file/d/1DtrmuDODeV2w5kGcmcHcGj5JXf2qWg01), and
+[NAS-Bench-201](https://drive.google.com/file/d/1sh8pEhdrgZ97-VFBVL94rI36gedExVgJ).
 
 ## Model Training
-```
+For NAS-Bench-NLP, put `nas-bench-x11/nasbenchnlp` into your PYTHONPATH\ 
+(`export PYTHONPATH=$HOME/nas-bench-x11:$PYTHONPATH`)
+```bash
 # Supported search spaces: nb101, darts, nlp, nb201
 cd $HOME/nas-bench-x11
-export PYTHONPATH=$HOME/nas-bench-x11:$PYTHONPATH
 python nas_bench_x11/fit_model.py --search_space darts --model svd_lgb
 ```
 Trained models will be saved in ``checkpoints/``.
