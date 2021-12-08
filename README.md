@@ -27,6 +27,27 @@ NAS-Bench-311 and NAS-Bench-NLP11 will work as is. To use NAS-Bench-111, first i
 ## Using the API
 The api is located in [`nas_bench_x11/api.py`](https://github.com/automl/nas-bench-x11/blob/main/nas_bench_x11/api.py).
 
+Here is an example of how to use the API:
+```python
+from nas_bench_x11.api import load_ensemble
+
+# load the surrogate
+nb311_surrogate_model = load_ensemble('path/to/nb311-v0.5')
+
+# define a genotype as in the original DARTS repository
+from collections import namedtuple
+Genotype = namedtuple('Genotype', 'normal normal_concat reduce reduce_concat')
+arch = Genotype(normal=[('sep_conv_3x3', 0), ('sep_conv_5x5', 1), ('skip_connect', 1), ('max_pool_3x3', 2), ('sep_conv_3x3', 0), ('dil_conv_5x5', 1), ('sep_conv_5x5', 2), ('dil_conv_5x5', 4)], \
+                normal_concat=[2, 3, 4, 5, 6], \
+                reduce=[('dil_conv_5x5', 0), ('skip_connect', 1), ('avg_pool_3x3', 0), ('sep_conv_5x5', 1), ('avg_pool_3x3', 0), ('max_pool_3x3', 2), ('sep_conv_3x3', 1), ('max_pool_3x3', 3)], \
+                reduce_concat=[4, 5, 6])
+
+# query the surrogate to output the learning curve
+learning_curve = nb311_surrogate_model.predict(config=arch, representation="genotype", with_noise=True)
+print(learning_curve)
+# outputs: [34.50166741 44.77032749 50.62796474 ... 93.47724664]
+```
+
 ## Run NAS experiments from our paper
 You will also need to download the nas-bench-301 runtime model [lgb_runtime_v1.0](https://figshare.com/articles/software/nasbench301_models_v1_0_zip/13061510) and place it inside a folder called ``nb_models``.
 
