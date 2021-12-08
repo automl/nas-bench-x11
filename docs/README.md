@@ -8,10 +8,9 @@ Download the NAS benchmark datasets corresponding to the surrogates you wish to 
 [NAS-Bench-201](https://drive.google.com/file/d/1sh8pEhdrgZ97-VFBVL94rI36gedExVgJ).
 
 ## Model Training
-For NAS-Bench-NLP, put `nas-bench-x11/nasbenchnlp` into your PYTHONPATH\ 
-(`export PYTHONPATH=$HOME/nas-bench-x11:$PYTHONPATH`)
 ```bash
 # Supported search spaces: nb101, darts, nlp, nb201
+export PYTHONPATH=$HOME/nas-bench-x11:$PYTHONPATH
 cd $HOME/nas-bench-x11
 python nas_bench_x11/fit_model.py --search_space darts --model svd_lgb
 ```
