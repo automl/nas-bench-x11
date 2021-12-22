@@ -44,7 +44,7 @@ def load_darts_data(result_paths, use_full_lc=False, extra_feats=False):
 
     # Create config loader
     root = utils.get_project_root()
-    config_loader = utils.ConfigLoader(os.path.join(root, 'configs/data_configs/nb301_configspace.json'))
+    config_loader = utils.ConfigLoader(os.path.join(root, "configs/data_configs/nb301_configspace.json"))
 
     # Get the train/test data
     hyps, val_accuracies, test_accuracies, full_lcs = [], [], [], []

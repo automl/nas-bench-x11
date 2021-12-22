@@ -21,6 +21,11 @@ class SVDLGBModel(SurrogateModel):
         self.model_config["param:objective"] = "reg:squarederror"
         self.model_config["param:eval_metric"] = "rmse"
         self.noise_model = {"type":"sliding_window", "windowsize":10}
+        
+        if search_space == "darts":
+            # Create config loader
+            root = utils.get_project_root()
+            self.config_loader = utils.ConfigLoader(os.path.join(root, "configs/data_configs/nb301_configspace.json"))
 
     def parse_param_config(self):
         identifier = "param:"

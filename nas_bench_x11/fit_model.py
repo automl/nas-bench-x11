@@ -65,36 +65,17 @@ def train_surrogate_model(model, model_config_path,
     if ensemble:
         surrogate_model = Ensemble(member_model_name=model, data_root=data_path, log_dir=log_dir,
                                    starting_seed=seed,
-                                   model_config=model_config, data_config=None, ensemble_size=5,
+                                   model_config=model_config, data_config=None, ensemble_size=2,
                                    search_space=search_space, nb101_api=nb101_api)
     else:
         surrogate_model = utils.model_dict[model](data_root=data_path, log_dir=log_dir, seed=seed,
                                                   model_config=model_config, data_config=None,
                                                   search_space=search_space, nb101_api=nb101_api)
 
-    # Override train/val/test splits if specified
-    if data_splits_root is not None:
-        train_paths = json.load(open(os.path.join(data_splits_root, "train_paths.json"), "r"))
-        val_paths = json.load(open(os.path.join(data_splits_root, "val_paths.json"), "r"))
-        test_paths = json.load(open(os.path.join(data_splits_root, "test_paths.json"), "r"))
-
-        cross_val_paths = train_paths + val_paths
-        optimzier_identifiers = [path.split("/")[-2] for path in cross_val_paths]
-        k_fold = StratifiedKFold(n_splits=10, shuffle=False, random_state=6)
-        splits = list(k_fold.split(cross_val_paths, optimzier_identifiers))
-
-        train_inds, val_inds = splits[seed % len(splits)]
-
-        surrogate_model.train_paths = list(np.array(cross_val_paths)[train_inds])
-        surrogate_model.val_paths = list(np.array(cross_val_paths)[val_inds])
-        surrogate_model.test_paths = test_paths
-
     # Train and validate the model on the available data
     surrogate_model.train()
 
-    # Test the model
-    if len(surrogate_model.test_paths) > 0:
-        surrogate_model.test()
+    surrogate_model.test()
 
     # Save the model
     surrogate_model.save()
