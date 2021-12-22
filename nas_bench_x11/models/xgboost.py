@@ -1,4 +1,8 @@
 """
+The XGBModel and XGBModel time are original nas-bench-301 models.
+They only output the final accuracy, not the full learning curve.
+We kept them so that Runtime Models can be loaded using only the nas-bench-x11 repo.
+
 This file contains code based on
 https://github.com/automl/nasbench301/
 Authors: Julien Siems, Lucas Zimmer, Arber Zela, Jovita Lukasik, Margret Keuper, Frank Hutter
@@ -21,35 +25,6 @@ class XGBModel(SurrogateModel):
         self.model_config["param:objective"] = "reg:squarederror"
         self.model_config["param:eval_metric"] = "rmse"
 
-    def load_results_from_result_paths(self, result_paths):
-        """
-        Read in the result paths and extract hyperparameters and validation accuracy
-        :param result_paths:
-        :return:
-        """
-        # Get the train/test data
-        hyps, val_accuracies, test_accuracies = [], [], []
-
-        for result_path in result_paths:
-            config_space_instance, val_accuracy, test_accuracy, _ = self.config_loader[result_path]
-            enc = config_space_instance.get_array()
-            hyps.append(enc)
-            val_accuracies.append(val_accuracy)
-            test_accuracies.append(test_accuracy)
-
-        X = np.array(hyps)
-        y = np.array(val_accuracies)
-
-        # Impute none and nan values
-        # Essential to prevent segmentation fault with robo
-        idx = np.where(y is None)
-        y[idx] = 100
-
-        idx = np.isnan(X)
-        X[idx] = -1
-
-        return X, y, test_accuracies
-
     def parse_param_config(self):
         identifier = "param:"
         param_config = dict()
@@ -59,8 +34,8 @@ class XGBModel(SurrogateModel):
         return param_config
 
     def train(self):
-        X_train, y_train, _ = self.load_results_from_result_paths(self.train_paths)
-        X_val, y_val, _ = self.load_results_from_result_paths(self.val_paths)
+        X_train, y_train, _ = self.load_dataset(dataset_type='train', use_full_lc=False)
+        X_val, y_val, _ = self.load_dataset(dataset_type='val', use_full_lc=False)
 
         dtrain = xgb.DMatrix(X_train, label=y_train)
         dval = xgb.DMatrix(X_val, label=y_val)
@@ -85,7 +60,7 @@ class XGBModel(SurrogateModel):
         return valid_metrics
 
     def test(self):
-        X_test, y_test, _ = self.load_results_from_result_paths(self.test_paths)
+        X_test, y_test, _ = self.load_dataset(dataset_type='test', use_full_lc=False)
         dtest = xgb.DMatrix(X_test, label=y_test)
         test_pred, var_test = self.model.predict(dtest), None
 
@@ -96,7 +71,7 @@ class XGBModel(SurrogateModel):
         return test_metrics
 
     def validate(self):
-        X_val, y_val, _ = self.load_results_from_result_paths(self.val_paths)
+        X_val, y_val, _ = self.load_dataset(dataset_type='val', use_full_lc=False)
         dval = xgb.DMatrix(X_val, label=y_val)
         val_pred, var_val = self.model.predict(dval), None
 
@@ -113,7 +88,7 @@ class XGBModel(SurrogateModel):
         self.model = pickle.load(open(model_path, 'rb'))
 
     def evaluate(self, result_paths):
-        X_test, y_test, _ = self.load_results_from_result_paths(result_paths)
+        X_test, y_test, _ = self.load_dataset(dataset_type='test', use_full_lc=False)
         dtest = xgb.DMatrix(X_test, label=y_test)
         test_pred, var_test = self.model.predict(dtest), None
 
@@ -135,7 +110,11 @@ class XGBModelTime(XGBModel):
     def __init__(self, data_root, log_dir, seed, model_config, data_config):
         super(XGBModelTime, self).__init__(data_root, log_dir, seed, model_config, data_config)
 
-    # OVERRIDE
+    """
+    This originally overrided load_results_from_result_paths, but that method is now
+    get_darts_data() in utils/data_loaders/darts_data.py.
+    TODO: put it there.
+    """
     def load_results_from_result_paths(self, result_paths):
         """
         Read in the result paths and extract hyperparameters and runtime

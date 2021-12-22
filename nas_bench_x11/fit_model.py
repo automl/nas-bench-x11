@@ -29,10 +29,6 @@ from nas_bench_x11.ensemble import Ensemble
 
 def train_surrogate_model(model, model_config_path, 
                           log_dir, seed, ensemble, search_space, data_path, data_splits_root):
-    # Load config
-    root = utils.get_project_root()
-    data_config_path = os.path.join(root, 'configs/data_configs/nb301_splits.json')
-    data_config = json.load(open(data_config_path, 'r'))
 
     # Create log directory
     if log_dir is None:
@@ -51,6 +47,7 @@ def train_surrogate_model(model, model_config_path,
     model_config['model'] = model
 
     # set up default data path
+    root = utils.get_project_root()
     if data_path is None:
         data_path = os.path.join(root, '../data')
     
@@ -58,7 +55,7 @@ def train_surrogate_model(model, model_config_path,
     if search_space == 'nb101':
         # load nasbench101 api here, so that it doesn't reload for every surrogate in the ensemble
         from nasbench import api
-        nb101_api_folder = os.path.join(utils.get_project_root(), '../data')
+        nb101_api_folder = os.path.join(root, '../data')
         nb101_api = api.NASBench(os.path.join(nb101_api_folder, 'nasbench_full.tfrecord'))
     elif search_space == 'darts':
         # todo: make this more general
@@ -68,11 +65,11 @@ def train_surrogate_model(model, model_config_path,
     if ensemble:
         surrogate_model = Ensemble(member_model_name=model, data_root=data_path, log_dir=log_dir,
                                    starting_seed=seed,
-                                   model_config=model_config, data_config=data_config, ensemble_size=5,
+                                   model_config=model_config, data_config=None, ensemble_size=5,
                                    search_space=search_space, nb101_api=nb101_api)
     else:
         surrogate_model = utils.model_dict[model](data_root=data_path, log_dir=log_dir, seed=seed,
-                                                  model_config=model_config, data_config=data_config,
+                                                  model_config=model_config, data_config=None,
                                                   search_space=search_space, nb101_api=nb101_api)
 
     # Override train/val/test splits if specified

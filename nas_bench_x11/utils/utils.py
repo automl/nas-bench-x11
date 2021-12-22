@@ -33,17 +33,18 @@ sns.set_style('whitegrid')
 
 model_dict = {
 
-    # NOTE: RUNTIME MODELS SHOULD END WITH "_time"
-
-    'xgb': XGBModel,
+    # nas-bench-x11 models:
     'svd_lgb': SVDLGBModel,
     'svd_xgb': SVDXGBModel,
     'svd_nn': SVDNNModel,
     'vae_lgb': VAELGBModel,
     'vae_xgb': VAEXGBModel,
     'vae_nn': VAENNModel,
-    'xgb_time': XGBModelTime,
+    # nas-bench-301 models (to be backwards compatible)
+    'xgb': XGBModel,
     'lgb': LGBModel,
+    # note: runtime models should end with "_time"
+    'xgb_time': XGBModelTime, 
     'lgb_time': LGBModelTime,
 }
 
@@ -57,7 +58,9 @@ def get_project_root() -> Path:
 
 def evaluate_learning_curve_metrics(y_true, y_pred, prediction_is_first_arg, reduction='mean'):
     """
-    Create a dict with all evaluation metrics
+    Each entry of y_true and y_pred is an array specifying a full learning curve.
+    Create a dict with all evaluation metrics, 
+    both averaged over the learning curve and at the final epoch.
     """
     y_pred = np.array(y_pred)
     y_true = np.array(y_true)
@@ -79,6 +82,7 @@ def evaluate_learning_curve_metrics(y_true, y_pred, prediction_is_first_arg, red
             p_vals.append(p_val)
         return corrs
 
+    # compute metrics on average over all epochs
     metrics_dict = dict()
     metrics_dict["mse"] = reduce_fn(mean_squared_error(y_true, y_pred, multioutput='raw_values'))
     metrics_dict["rmse"] = reduce_fn(mean_squared_error(y_true, y_pred, multioutput='raw_values', squared=False))
@@ -86,18 +90,15 @@ def evaluate_learning_curve_metrics(y_true, y_pred, prediction_is_first_arg, red
     metrics_dict["kendall_tau"] = reduce_fn(kendall_tau_lc(y_true, y_pred))
     metrics_dict["kendall_tau_2_dec"] = reduce_fn(kendall_tau_lc(y_true, y_pred, decimals=2))
     metrics_dict["kendall_tau_1_dec"] = reduce_fn(kendall_tau_lc(y_true, y_pred, decimals=1))
-
     metrics_dict["spearmanr"] = reduce_fn([spearmanr(yt, yp).correlation for yt, yp in zip(y_true.T, y_pred.T)])
 
-    # Last epoch metrics
-
+    # compute metrics for the last epoch only
     metrics_dict["last_epoch_mse"] = mean_squared_error(y_true[:, -1], y_pred[:, -1])
     metrics_dict["last_epoch_rmse"] = np.sqrt(metrics_dict["last_epoch_mse"])
     metrics_dict["last_epoch_r2"] = r2_score(y_true[:, -1], y_pred[:, -1])
     metrics_dict["last_epoch_kendall_tau"], p_val = kendalltau(y_true[:, -1], y_pred[:, -1])
     metrics_dict["last_epoch_kendall_tau_2_dec"], p_val = kendalltau(y_true[:, -1], np.round(np.array(y_pred[:, -1]), decimals=2))
     metrics_dict["last_epoch_kendall_tau_1_dec"], p_val = kendalltau(y_true[:, -1], np.round(np.array(y_pred[:, -1]), decimals=1))
-
     metrics_dict["last_epoch_spearmanr"] = spearmanr(y_true[:, -1], y_pred[:, -1]).correlation
 
     return metrics_dict
@@ -105,7 +106,8 @@ def evaluate_learning_curve_metrics(y_true, y_pred, prediction_is_first_arg, red
 
 def evaluate_metrics(y_true, y_pred, prediction_is_first_arg):
     """
-    Create a dict with all evaluation metrics
+    This is the original evaluation method from nas-bench-301.
+    Each entry of y_true and y_pred is the accuracy at the final epoch only.
     """
 
     if prediction_is_first_arg:
@@ -118,7 +120,6 @@ def evaluate_metrics(y_true, y_pred, prediction_is_first_arg):
     metrics_dict["kendall_tau"], p_val = kendalltau(y_true, y_pred)
     metrics_dict["kendall_tau_2_dec"], p_val = kendalltau(y_true, np.round(np.array(y_pred), decimals=2))
     metrics_dict["kendall_tau_1_dec"], p_val = kendalltau(y_true, np.round(np.array(y_pred), decimals=1))
-
     metrics_dict["spearmanr"] = spearmanr(y_true, y_pred).correlation
 
     return metrics_dict

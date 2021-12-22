@@ -84,15 +84,6 @@ class BaggingEnsemble(AbstractEnsemble):
             ensemble_member = utils.model_dict[self.member_model_name](log_dir=member_logdir, 
                                                                        seed=self.starting_seed+ind, 
                                                                        **self.member_model_init_dict)
-            
-            if self.train_paths == None:
-                self.train_paths = ensemble_member.train_paths
-                self.val_paths = ensemble_member.val_paths
-                self.test_paths = ensemble_member.test_paths
-
-            ensemble_member.train_paths = self.train_paths
-            ensemble_member.val_paths = self.val_paths
-            ensemble_member.test_paths = self.test_paths
 
             self.ensemble_members.append(ensemble_member)
             self.member_logdirs.append(member_logdir)
@@ -247,11 +238,6 @@ class BaggingEnsemble(AbstractEnsemble):
         return all_member_test_paths[0]
         """
         return self.test_paths
-
-    def log_dataset_predictions(self):
-        """Log predictions for all members"""
-        for ens_mem in self.ensemble_members:
-            ens_mem.log_dataset_predictions()
 
     def query_members(self, config_dict, search_space='darts', components=False):
         """Get predictions from the ensemble members"""
