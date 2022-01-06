@@ -20,7 +20,7 @@ class SVDLGBModel(SurrogateModel):
         self.model = None
         self.model_config["param:objective"] = "reg:squarederror"
         self.model_config["param:eval_metric"] = "rmse"
-        self.noise_model = {"type":"sliding_window", "windowsize":10}
+        self.noise_model = {"type":"sliding_window", "windowsize":9}
         
         if search_space == "darts":
             # Create config loader
@@ -80,10 +80,24 @@ class SVDLGBModel(SurrogateModel):
 
         if self.noise_model["type"] == 'gkde':
             self.noise_model["kernel"] = gaussian_kde(residuals.T+np.random.randn(*residuals.T.shape)*1e-8)
-        elif self.noise_model["type"] == 'sliding_window':
+        if self.noise_model["type"] == 'sliding_window':
             windowsize = self.noise_model["windowsize"]
             windows = np.lib.stride_tricks.sliding_window_view(residuals, windowsize, axis=1)
-            windowstd = np.std(windows, axis=-1)
+            windowstd = np.zeros_like(residuals)
+            regular_case_start = windowsize // 2
+            regular_case_end = residuals.shape[1] - windowsize // 2
+            windowstd[:, regular_case_start:regular_case_end] = np.std(windows, axis=-1)
+
+            # add edge cases: first few epochs and last few epochs
+            for e in range(1, regular_case_start):
+                # these epochs have smaller windows since they're on the edge 
+                special_windowsize = e * 2 + 1
+                windowstd[:, e] = np.std(residuals[:, :special_windowsize], axis=-1)
+                end_index = residuals.shape[1] - 1 - e
+                windowstd[:, end_index] = np.std(residuals[:, -special_windowsize:], axis=-1)
+            # for the first and last epoch, take the std of just the first two and last two epochs
+            windowstd[:, 0] = np.std(residuals[:, :2], axis=-1)
+            windowstd[:, -1] = np.std(residuals[:, -2:], axis=-1)
 
             # train an lgb model using features = U[:, :K] (i.e., principal components), labels = window stds
             self.noise_model["windowstd_model"] = RegressorChain(lgb.LGBMRegressor(random_state=101)).fit(u[:, :self.num_components], windowstd.copy())
@@ -139,7 +153,7 @@ class SVDLGBModel(SurrogateModel):
         if len(joblib.load(model_path)) == 5:
             # to be backwards compatible with nas-bench-301 models,
             # we can load a model without a noise model
-            logging.info('loading model without noise model')
+            print('loading model without noise model')
             model, ss, svd_s, svd_vh, num_components = joblib.load(model_path)
             self.model = model
             self.ss = ss
@@ -149,7 +163,7 @@ class SVDLGBModel(SurrogateModel):
 
         else:
             # load a model with a noise model
-            logging.info('loading model with noise model')
+            print('loading model with noise model')
             model, ss, svd_s, svd_vh, num_components, noise_model = joblib.load(model_path)
             self.model = model
             self.ss = ss
@@ -203,11 +217,7 @@ class SVDLGBModel(SurrogateModel):
             elif noise_model_type == "sliding_window":
                 windowsize = self.noise_model["windowsize"]
                 pred_stds = np.maximum(1e-4, self.noise_model["windowstd_model"].predict(comp))
-                std_length = pred_stds.shape[1]
-                noise = np.zeros([std_length + windowsize - 1])
-                start = windowsize // 2 - 1
-                end = std_length + windowsize // 2 - 1
-                noise[start:end] = np.squeeze([np.random.normal() * std for std in pred_stds])
+                noise = np.squeeze([np.random.normal() * std for std in pred_stds])
                 return ypred[0] + noise
 
         else:
